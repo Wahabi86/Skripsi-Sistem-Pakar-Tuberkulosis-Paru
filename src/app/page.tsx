@@ -3,8 +3,10 @@
 import { LuBookOpen } from "react-icons/lu";
 import { FiArrowRight } from "react-icons/fi";
 import { FaLongArrowAltRight } from "react-icons/fa";
+import { IoIosArrowDown } from "react-icons/io";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 
 const features = [
   {
@@ -51,12 +53,12 @@ const cards = [
   {
     icon: "/lungs2.png",
     title: "Kenali Gejala",
-    desc: "Mengenali gejala sejak dini sebelum bertambah parah.",
+    desc: "Mengenali gejala Tuberkulosis Paru sejak dini sebelum bertambah parah.",
   },
   {
     icon: "/shield1.png",
     title: "Cegah Penularan",
-    desc: "Mencegah penularan ke keluarga dan lingkungan.",
+    desc: "Mencegah penularan ke keluarga, taman dan lingkungan sekitar.",
   },
   {
     icon: "/medical-checkup.png",
@@ -66,9 +68,65 @@ const cards = [
   {
     icon: "/heart-rate.png",
     title: "Lindungi Hidup",
-    desc: "Melindungi kesehatan diri sendiri dan orang tersayang.",
+    desc: "Melindungi kesehatan diri sendiri dan orang tersayang untuk masa depan yang lebih baik.",
   },
 ];
+
+const faqs = [
+  {
+    question: "Apa itu TBC Paru dan bagaimana cara penularannya?",
+    answer:
+      "TBC Paru adalah penyakit infeksi menular yang disebabkan oleh bakteri Mycobacterium Tuberculosis. Penyakit ini menyebar melalui udara saat penderita batuk, bersin, atau berbicara, sehingga sangat mudah menular di lingkungan padat penduduk.",
+  },
+  {
+    question: "Apa saja gejala awal TBC Paru yang perlu diwaspadai?",
+    answer:
+      "Gejalanya mencakup batuk lebih dari 2 minggu, batuk berdahak, batuk berdarah, nyeri dada, sesak napas, lelah atau lemas, penurunan berat badan, nafsu makan menurun, demam, dan berkeringat di malam hari. Gejala ini sering mirip dengan penyakit pernapasan lain, jadi kombinasi beberapa gejala sekaligus patut diwaspadai.",
+  },
+  {
+    question: "Apakah hasil diagnosis dari sistem ini bisa menggantikan pemeriksaan dokter?",
+    answer:
+      "Tidak, sistem ini hanya berfungsi sebagai alat bantu deteksi dini dan penilaian awal secara mandiri. Hasil yang diberikan bukan diagnosis medis resmi. Pengguna tetap dianjurkan untuk melakukan pemeriksaan lebih lanjut ke fasilitas kesehatan untuk konfirmasi dan penanganan yang tepat.",
+  },
+];
+
+function FAQAccordion() {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  const toggle = (index: number) => {
+    setOpenIndex(openIndex === index ? null : index);
+  };
+
+  return (
+    <div className="flex flex-col gap-4">
+      {faqs.map((faq, index) => {
+        const isOpen = openIndex === index;
+        return (
+          <div key={index} className={`border rounded-2xl overflow-hidden transition-all duration-300 ${isOpen ? "border-[#2F8F8B]/40 shadow-md shadow-[#2F8F8B]/10" : "border-gray-100 shadow-sm"} bg-white`}>
+            {/* Header */}
+            <button onClick={() => toggle(index)} className="w-full flex items-center justify-between px-6 py-5 text-left group">
+              <span className={`font-semibold text-lg transition-colors duration-300 ${isOpen ? "text-[#2F8F8B]" : "text-gray-800"}`}>{faq.question}</span>
+              <span
+                className={`ml-4 shrink-0 w-8 h-8 flex items-center justify-center rounded-full transition-all duration-300 ${
+                  isOpen ? "bg-[#2F8F8B] text-white rotate-180" : "bg-gray-100 text-gray-400 group-hover:bg-[#EAF6F6] group-hover:text-[#2F8F8B]"
+                }`}
+              >
+                <IoIosArrowDown className="text-lg" />
+              </span>
+            </button>
+
+            {/* Answer - smooth expand */}
+            <div className={`grid transition-all duration-500 ease-in-out ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
+              <div className="overflow-hidden">
+                <p className="px-6 pb-5 text-gray-500 text-base leading-relaxed border-t border-gray-100 pt-4">{faq.answer}</p>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function Home() {
   return (
@@ -132,7 +190,7 @@ export default function Home() {
             <div key={index} className="relative flex items-start gap-5 px-10 py-8">
               {/* Garis vertikal gradient */}
               {index !== arr.length - 1 && <div className="absolute right-0 top-0 h-full w-1 bg-linear-to-b from-transparent via-gray-300 to-transparent" />}
-              
+
               {/* Icon */}
               <div className="shrink-0 w-16 h-16 flex items-center justify-center">
                 <Image src={item.icon} alt={item.title} width={56} height={56} className="object-contain" />
@@ -228,6 +286,26 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Section FAQ */}
+      <section className="py-16 bg-white">
+        <div className="max-w-5xl mx-auto px-6">
+          {/* Judul */}
+          <div className="flex flex-col items-center mb-12">
+            <div className="flex items-center gap-3 mb-3">
+              <Image src="/question.png" alt="FAQ Icon" width={40} height={40} className="object-contain" />
+              <h2 className="text-4xl font-bold text-gray-800">
+                Ada Pertanyaan Terkait <span className="text-[#2F8F8B]">TBC?</span>
+              </h2>
+            </div>
+            <div className="w-12 h-1 bg-[#2F8F8B] rounded mb-4" />
+            <p className="text-gray-500 text-lg text-center">Temukan jawaban atas pertanyaan umum seputar TBC Paru dan penggunaan TBCheck.</p>
+          </div>
+
+          {/* Accordion */}
+          <FAQAccordion />
         </div>
       </section>
     </div>

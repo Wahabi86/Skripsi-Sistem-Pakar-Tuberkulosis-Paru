@@ -167,7 +167,7 @@ export default function Home() {
 
               <Link
                 href="/informasi-tbc"
-                className="inline-flex items-center gap-2 border border-[#2F8F8B]/40 hover:border-[#2F8F8B] bg-white/60 hover:bg-white text-gray-700 hover:text-[#2F8F8B] font-semibold text-lg px-8 py-4 rounded-xl transition-all duration-300 hover:-translate-y-0.5"
+                className="inline-flex items-center gap-2 border border-gray-300 hover:border-[#2F8F8B] bg-white hover:bg-[#EAF6F6] text-gray-700 hover:text-[#2F8F8B] font-semibold text-lg px-8 py-4 rounded-xl transition-all duration-300 hover:-translate-y-0.5"
               >
                 Pelajari TBC Paru
                 <LuBookOpen className="text-lg" />

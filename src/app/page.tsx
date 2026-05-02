@@ -33,7 +33,7 @@ const steps = [
     desc: "Isi kuesioner gejala yang kamu alami",
   },
   {
-    icon: "/pie-chart.png",
+    icon: "/process.png",
     title: "Proses Analisis",
     desc: "Sistem akan menganalisis berdasarkan gejala",
   },
@@ -58,7 +58,7 @@ const cards = [
   {
     icon: "/shield1.png",
     title: "Cegah Penularan",
-    desc: "Mencegah penularan ke keluarga, taman dan lingkungan sekitar.",
+    desc: "Mencegah penularan ke keluarga, teman dan lingkungan sekitar.",
   },
   {
     icon: "/medical-checkup.png",
@@ -104,7 +104,7 @@ function FAQAccordion() {
         return (
           <div key={index} className={`border rounded-2xl overflow-hidden transition-all duration-300 ${isOpen ? "border-[#2F8F8B]/40 shadow-md shadow-[#2F8F8B]/10" : "border-gray-100 shadow-sm"} bg-white`}>
             {/* Header */}
-            <button onClick={() => toggle(index)} className="w-full flex items-center justify-between px-6 py-5 text-left group">
+            <button onClick={() => toggle(index)} className="w-full flex items-center justify-between px-6 py-5 text-left group cursor-pointer">
               <span className={`font-semibold text-lg transition-colors duration-300 ${isOpen ? "text-[#2F8F8B]" : "text-gray-800"}`}>{faq.question}</span>
               <span
                 className={`ml-4 shrink-0 w-8 h-8 flex items-center justify-center rounded-full transition-all duration-300 ${
@@ -241,7 +241,7 @@ export default function Home() {
       </section>
 
       {/* Section Kenapa Deteksi Dini Penting */}
-      <section className="py-16 bg-white">
+      <section className="py-14 bg-white">
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex flex-col md:flex-row items-center gap-16">
             {/* Kiri - Gambar */}
@@ -290,7 +290,7 @@ export default function Home() {
       </section>
 
       {/* Section FAQ */}
-      <section className="py-16 bg-white">
+      <section className="py-14 bg-white">
         <div className="max-w-5xl mx-auto px-6">
           {/* Judul */}
           <div className="flex flex-col items-center mb-12">
@@ -306,6 +306,38 @@ export default function Home() {
 
           {/* Accordion */}
           <FAQAccordion />
+        </div>
+      </section>
+
+      {/* Section CTA */}
+      <section className="py-5 bg-white">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="flex items-center justify-between gap-8 bg-linear-to-r from-[#EAF6F6] to-[#D4EEEE] border border-[#2F8F8B]/15 rounded-2xl px-8 shadow-sm overflow-hidden">
+            {/* Gambar dokter */}
+            <div className="shrink-0 flex items-end self-end">
+              <Image src="/dokter.png" alt="Dokter TBCheck" width={0} height={0} sizes="100vw" className="w-50 object-contain scale-160" />
+            </div>
+
+            {/* Garis vertikal */}
+            <div className="w-px h-25 bg-[#2F8F8B]/20 shrink-0" />
+
+            {/* Teks */}
+            <div className="flex-1 py-7">
+              <p className="font-bold text-gray-800 text-xl mb-1">
+                Masih <span className="text-[#2F8F8B]">ragu</span> dengan kondisi kamu?
+              </p>
+              <p className="text-gray-500 text-base leading-relaxed max-w-lg">TBC Paru bisa disembuhkan jika ditemukan sejak dini dan pengobatan yang tepat. Lakukan skrining sekarang dan ambil langkah terbaik untuk kesehatanmu.</p>
+            </div>
+
+            {/* Tombol */}
+            <Link
+              href="/konsultasi"
+              className="shrink-0 inline-flex items-center gap-2 bg-[#2F8F8B] hover:bg-[#277C78] text-white font-semibold text-base px-7 py-4 rounded-xl shadow-md shadow-[#2F8F8B]/25 transition-all duration-300 hover:shadow-lg hover:shadow-[#2F8F8B]/30 hover:-translate-y-0.5 whitespace-nowrap"
+            >
+              Mulai Sekarang
+              <FiArrowRight className="text-lg" />
+            </Link>
+          </div>
         </div>
       </section>
     </div>

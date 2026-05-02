@@ -7,6 +7,7 @@ import { IoIosArrowDown } from "react-icons/io";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import Footer from "@/components/layouts/Footer";
 
 const features = [
   {
@@ -310,7 +311,7 @@ export default function Home() {
       </section>
 
       {/* Section CTA */}
-      <section className="py-5 bg-white">
+      <section className="pt-5 pb-20 bg-white">
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex items-center justify-between gap-8 bg-linear-to-r from-[#EAF6F6] to-[#D4EEEE] border border-[#2F8F8B]/15 rounded-2xl px-8 shadow-sm overflow-hidden">
             {/* Gambar dokter */}
@@ -340,6 +341,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 }

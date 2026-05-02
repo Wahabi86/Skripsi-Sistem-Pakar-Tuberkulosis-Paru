@@ -113,7 +113,6 @@ export default function KonsultasiPage() {
             const selectedLabel = answers[q.id] ?? null;
             const answered = !!selectedLabel;
             const healthy = answered && isHealthy(q.id);
-            const risky = answered && !healthy;
 
             return (
               <div

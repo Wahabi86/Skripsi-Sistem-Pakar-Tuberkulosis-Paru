@@ -1,33 +1,27 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 
-// Mapping kode gejala ke nama gejala
-const namaGejala: Record<string, string> = {
-  G1: "Batuk lebih dari 2 minggu",
-  G2: "Batuk berdahak",
-  G3: "Batuk berdarah",
-  G4: "Terasa nyeri di bagian dada",
-  G5: "Sesak napas",
-  G6: "Malaise (Lelah atau lemas)",
-  G7: "Penurunan berat badan",
-  G8: "Nafsu makan menurun",
-  G9: "Demam",
-  G10: "Berkeringat di malam hari",
+// Tipe Data
+type GejalaTerdeteksi = {
+  kode_gejala: string;
+  nama_gejala: string;
+  jawaban: string;
+  nilai_cf_user: number;
 };
 
-// Data dummy gejala yang terindikasi (jawaban mengarah ke TBC)
-const gejalaTerdeteksi = [
-  { kode: "G1", jawaban: "Sudah lebih dari 2 minggu dan masih berlanjut" },
-  { kode: "G2", jawaban: "Kadang-kadang ada dahak, tidak setiap batuk" },
-  { kode: "G3", jawaban: "Ya, sudah beberapa kali terjadi" },
-  { kode: "G4", jawaban: "Ya, nyeri muncul terutama saat batuk atau bernapas dalam" },
-  { kode: "G6", jawaban: "Ya, sering merasa lemas meski tidak banyak beraktivitas" },
-  { kode: "G7", jawaban: "Ya, berat badan turun cukup signifikan belakangan ini" },
-  { kode: "G9", jawaban: "Ya, demam ringan yang hilang timbul" },
-  { kode: "G10", jawaban: "Ya, beberapa kali dalam seminggu" },
-];
+type HasilDiagnosis = {
+  kode_penyakit: string;
+  nama_penyakit: string;
+  cf_akhir: number;
+  cf_detail: Record<string, number>;
+  gejala_terdeteksi: GejalaTerdeteksi[];
+  tanggal: string;
+  jumlah_gejala: number;
+};
 
 // Teks analisis dummy
 const analisisDummy = `Berdasarkan gejala yang Anda laporkan, terdapat kombinasi gejala khas yang sangat erat kaitannya dengan infeksi Tuberkulosis Paru, terutama batuk persisten lebih dari dua minggu disertai dahak dan batuk berdarah.
@@ -37,20 +31,40 @@ Gejala sistemik seperti demam ringan yang hilang timbul, keringat malam berlebih
 Sangat dianjurkan untuk segera mengunjungi Puskesmas atau rumah sakit terdekat guna menjalani pemeriksaan lanjutan seperti tes dahak (sputum BTA), foto rontgen dada, dan tes TCM (Tes Cepat Molekuler) untuk konfirmasi diagnosis secara resmi.`;
 
 export default function HasilPage() {
-  const tanggal = "02/05/2026";
+  const router = useRouter();
 
-  // Data dummy
-  const status = "terindikasi";
-  const nilaiCF = 82;
-  const jumlahGejala = 8;
+  // State hasil diagnosis
+  const [hasil] = useState<HasilDiagnosis | null>(() => {
+    if (typeof window === "undefined") return null;
+    const raw = sessionStorage.getItem("hasilDiagnosis");
+    if (!raw) return null;
+    return JSON.parse(raw);
+  });
 
-  const isPositif = status === "terindikasi";
+  // Redirect ke konsultasi jika tidak ada data
+  useEffect(() => {
+    if (!hasil) {
+      router.push("/konsultasi");
+    }
+  }, [hasil, router]);
+
+  // Tampilan loading saat data belum siap
+  if (!hasil) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-500 text-lg">Memuat hasil diagnosis...</p>
+      </div>
+    );
+  }
+
+  // Kalkulasi tampilan dari data nyata
+  const isPositif = hasil.kode_penyakit === "P1";
   const warna = isPositif ? "#DC2626" : "#2F8F8B";
 
   // Kalkulasi SVG circular progress
   const radius = 58;
   const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (nilaiCF / 100) * circumference;
+  const offset = circumference - (hasil.cf_akhir / 100) * circumference;
 
   return (
     <div className="min-h-screen py-10 px-4">
@@ -60,7 +74,7 @@ export default function HasilPage() {
           <h1 className="text-3xl font-extrabold text-gray-800 mb-2">
             Hasil Diagnosis <span className="text-[#2F8F8B]">Tuberkulosis Paru</span>
           </h1>
-          <p className="text-gray-500 text-base">Tanggal Konsultasi: {tanggal}</p>
+          <p className="text-gray-500 text-base">Tanggal Konsultasi: {hasil.tanggal}</p>
         </div>
 
         {/* Section Status Diagnosis */}
@@ -69,10 +83,10 @@ export default function HasilPage() {
           <div className="flex flex-col gap-3">
             <p className="text-gray-500 text-xl font-semibold uppercase tracking-widest">Status Diagnosis</p>
             <p className="text-2xl font-extrabold" style={{ color: warna }}>
-              {isPositif ? "Terindikasi Tuberkulosis Paru" : "Tidak Terindikasi Tuberkulosis Paru"}
+              {hasil.nama_penyakit}
             </p>
             <p className="text-gray-500 text-base">
-              Diagnosis berdasarkan <span className="font-bold text-gray-700">{jumlahGejala} gejala</span> yang Anda rasakan
+              Diagnosis berdasarkan <span className="font-bold text-gray-700">{hasil.jumlah_gejala} gejala</span> yang Anda rasakan
             </p>
           </div>
 
@@ -82,7 +96,7 @@ export default function HasilPage() {
               <circle cx="80" cy="80" r={radius} fill="none" stroke="#E5E7EB" strokeWidth="12" />
               <circle cx="80" cy="80" r={radius} fill="none" stroke={warna} strokeWidth="12" strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" transform="rotate(-90 80 80)" />
               <text x="80" y="70" textAnchor="middle" dominantBaseline="middle" fontSize="26" fontWeight="800" fill={warna}>
-                {nilaiCF}%
+                {hasil.cf_akhir}%
               </text>
               <text x="80" y="92" textAnchor="middle" dominantBaseline="middle" fontSize="13" fill="#6B7280">
                 Tingkat
@@ -106,18 +120,21 @@ export default function HasilPage() {
 
             {/* Daftar Gejala */}
             <div className="flex flex-col gap-2">
-              {gejalaTerdeteksi.map((g) => (
-                <div key={g.kode} className="flex items-center justify-between gap-4 bg-white border border-gray-100 rounded-xl px-4 py-3">
-                  {/* Kiri - nama gejala */}
-                  <p className="text-gray-800 text-base font-medium">{namaGejala[g.kode]}</p>
-
-                  {/* Kanan - jawaban style konsultasi */}
-                  <div className="shrink-0 flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 text-sm font-medium px-4 py-2 rounded-xl">
-                    <span>⚠</span>
-                    <span>{g.jawaban}</span>
+              {hasil.gejala_terdeteksi.length === 0 ? (
+                <p className="text-gray-400 text-base">Tidak ada gejala yang terdeteksi mengarah ke TBC.</p>
+              ) : (
+                hasil.gejala_terdeteksi.map((g) => (
+                  <div key={g.kode_gejala} className="flex items-center justify-between gap-4 bg-white border border-gray-100 rounded-xl px-4 py-3">
+                    {/* Kiri - nama gejala dari database */}
+                    <p className="text-gray-800 text-base font-medium">{g.nama_gejala}</p>
+                    {/* Kanan - jawaban user */}
+                    <div className="shrink-0 flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 text-sm font-medium px-4 py-2 rounded-xl">
+                      <span>⚠</span>
+                      <span>{g.jawaban}</span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
 

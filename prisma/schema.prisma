@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model tb_penyakit {
+  kode_penyakit String @id @db.Char(2)
+  nama_penyakit String @db.VarChar(100)
+  tb_aturan     tb_aturan_basis_pengetahuan[]
+  tb_konsultasi tb_konsultasi[]
+}
+
+model tb_gejala {
+  kode_gejala    String   @id @db.Char(3)
+  nama_gejala    String   @db.VarChar(100)
+  pertanyaan     String
+  cf_pakar       Decimal  @db.Decimal(3, 2)
+  tb_aturan      tb_aturan_basis_pengetahuan[]
+  tb_pilihan     tb_pilihan_jawaban[]
+  tb_detail      tb_detail_konsultasi[]
+}
+
+model tb_pilihan_jawaban {
+  id_pilihan    Int     @id @default(autoincrement())
+  kode_gejala   String  @db.Char(3)
+  teks_pilihan  String
+  nilai_cf_user Decimal @db.Decimal(3, 2)
+  urutan        Int
+  gejala        tb_gejala @relation(fields: [kode_gejala], references: [kode_gejala])
+  tb_detail     tb_detail_konsultasi[]
+}
+
+model tb_aturan_basis_pengetahuan {
+  id_basis      Int     @id @default(autoincrement())
+  kode_aturan   String  @db.Char(2)
+  kode_penyakit String  @db.Char(2)
+  kode_gejala   String  @db.Char(3)
+  is_negasi     Boolean
+  penyakit      tb_penyakit @relation(fields: [kode_penyakit], references: [kode_penyakit])
+  gejala        tb_gejala   @relation(fields: [kode_gejala], references: [kode_gejala])
+}
+
+model tb_konsultasi {
+  id_konsultasi      Int      @id @default(autoincrement())
+  kode_penyakit      String   @db.Char(2)
+  tanggal_konsultasi DateTime @default(now()) @db.Timestamptz()
+  cf_akhir           Decimal  @db.Decimal(5, 2)
+  penjelasan_llm     String?
+  penyakit           tb_penyakit @relation(fields: [kode_penyakit], references: [kode_penyakit])
+  tb_detail          tb_detail_konsultasi[]
+}
+
+model tb_detail_konsultasi {
+  id_detail     Int     @id @default(autoincrement())
+  id_konsultasi Int
+  kode_gejala   String  @db.Char(3)
+  id_pilihan    Int
+  cf_user       Decimal @db.Decimal(3, 2)
+  konsultasi    tb_konsultasi      @relation(fields: [id_konsultasi], references: [id_konsultasi])
+  gejala        tb_gejala          @relation(fields: [kode_gejala], references: [kode_gejala])
+  pilihan       tb_pilihan_jawaban @relation(fields: [id_pilihan], references: [id_pilihan])
+}

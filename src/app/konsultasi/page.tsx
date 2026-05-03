@@ -1,8 +1,25 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { questions } from "@/lib/data/pertanyaan";
+import { useRouter } from "next/navigation";
 import { IoIosArrowDown } from "react-icons/io";
+import axiosInstance from "@/lib/axios";
+
+// Tipe Data
+type Pilihan = {
+  id_pilihan: number;
+  teks_pilihan: string;
+  nilai_cf_user: number;
+  urutan: number;
+};
+
+type Gejala = {
+  kode_gejala: string;
+  nama_gejala: string;
+  pertanyaan: string;
+  cf_pakar: number;
+  tb_pilihan: Pilihan[];
+};
 
 // Komponen Dropdown Custom
 function CustomDropdown({ options, value, onChange, placeholder = "Pilih jawaban" }: { options: { label: string }[]; value: string; onChange: (val: string) => void; placeholder?: string }) {
@@ -58,21 +75,82 @@ function CustomDropdown({ options, value, onChange, placeholder = "Pilih jawaban
 }
 
 export default function KonsultasiPage() {
+  const router = useRouter();
+
+  // State data gejala dari database
+  const [gejalaList, setGejalaList] = useState<Gejala[]>([]);
+  // State loading saat data gejala sedang diambil
+  const [loading, setLoading] = useState(true);
+  // State loading saat tombol diagnosis diklik
+  const [loadingDiagnosis, setLoadingDiagnosis] = useState(false);
+  // State jawaban user
   const [answers, setAnswers] = useState<Record<string, string>>({});
+  // State untuk menyimpan id_pilihan yang dipilih
+  const [selectedIds, setSelectedIds] = useState<Record<string, number>>({});
 
+  // Fetch data gejala + pilihan jawaban
+  useEffect(() => {
+    async function fetchGejala() {
+      try {
+        const res = await axiosInstance.get("/api/gejala");
+        if (res.data.success) {
+          setGejalaList(res.data.data);
+        }
+      } catch (err) {
+        console.error("Gagal fetch gejala:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchGejala();
+  }, []);
+
+  // Hitung progress jawaban
   const answered = Object.values(answers).filter((v) => v !== "").length;
-  const total = questions.length;
-  const percentage = Math.round((answered / total) * 100);
+  const total = gejalaList.length;
+  const percentage = total > 0 ? Math.round((answered / total) * 100) : 0;
 
-  const handleSelect = (questionId: string, label: string) => {
-    setAnswers((prev) => ({ ...prev, [questionId]: label }));
+  // Simpan teks jawaban + id_pilihan
+  const handleSelect = (kodeGejala: string, teksPilihan: string, idPilihan: number) => {
+    setAnswers((prev) => ({ ...prev, [kodeGejala]: teksPilihan }));
+    setSelectedIds((prev) => ({ ...prev, [kodeGejala]: idPilihan }));
   };
 
-  const isHealthy = (questionId: string) => {
-    const q = questions.find((q) => q.id === questionId);
-    if (!q) return false;
-    return answers[questionId] === q.options[q.options.length - 1].label;
+  // Cek jawaban sehat berdasarkan data dari database
+  const isHealthy = (kodeGejala: string) => {
+    const gejala = gejalaList.find((g) => g.kode_gejala === kodeGejala);
+    if (!gejala) return false;
+    const pilihanTerakhir = gejala.tb_pilihan[gejala.tb_pilihan.length - 1];
+    return answers[kodeGejala] === pilihanTerakhir.teks_pilihan;
   };
+
+  // Kirim jawaban ke API diagnosis lalu redirect ke halaman hasil
+  const handleDiagnosis = async () => {
+    setLoadingDiagnosis(true);
+    try {
+      const res = await axiosInstance.post("/api/diagnosis", {
+        jawaban: selectedIds,
+      });
+      if (res.data.success) {
+        // Simpan hasil ke sessionStorage agar bisa dibaca di halaman /hasil
+        sessionStorage.setItem("hasilDiagnosis", JSON.stringify(res.data.data));
+        router.push("/hasil");
+      }
+    } catch (err) {
+      console.error("Gagal diagnosis:", err);
+    } finally {
+      setLoadingDiagnosis(false);
+    }
+  };
+
+  // Tampilan loading saat data gejala belum siap
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-500 text-lg">Memuat pertanyaan...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen py-10 px-4">
@@ -101,22 +179,25 @@ export default function KonsultasiPage() {
 
           {/* Indikator per soal */}
           <div className="flex gap-2 flex-wrap">
-            {questions.map((q) => (
-              <div key={q.id} className={`h-2 flex-1 rounded-full transition-all duration-300 ${answers[q.id] ? "bg-[#2F8F8B]" : "bg-gray-300"}`} />
+            {gejalaList.map((g) => (
+              <div key={g.kode_gejala} className={`h-2 flex-1 rounded-full transition-all duration-300 ${answers[g.kode_gejala] ? "bg-[#2F8F8B]" : "bg-gray-300"}`} />
             ))}
           </div>
         </div>
 
         {/* Daftar Pertanyaan */}
         <div className="flex flex-col gap-4 mb-8">
-          {questions.map((q, index) => {
-            const selectedLabel = answers[q.id] ?? null;
-            const answered = !!selectedLabel;
-            const healthy = answered && isHealthy(q.id);
+          {gejalaList.map((g, index) => {
+            const selectedLabel = answers[g.kode_gejala] ?? null;
+            const isAnswered = !!selectedLabel;
+            const healthy = isAnswered && isHealthy(g.kode_gejala);
+
+            // format pilihan dari tb_pilihan (database)
+            const options = g.tb_pilihan.map((p) => ({ label: p.teks_pilihan }));
 
             return (
               <div
-                key={q.id}
+                key={g.kode_gejala}
                 className={`border rounded-2xl overflow-visible transition-all duration-300 bg-white
     ${answered ? "border-[#2F8F8B]/30 shadow-md shadow-[#2F8F8B]/10" : "border-gray-100 shadow-sm"}`}
               >
@@ -131,11 +212,20 @@ export default function KonsultasiPage() {
                       {index + 1}
                     </span>
                     {/* Pertanyaan */}
-                    <p className="text-gray-800 text-base font-medium">{q.question}</p>
+                    <p className="text-gray-800 text-base font-medium">{g.pertanyaan}</p>
                   </div>
 
                   {/* Dropdown */}
-                  <CustomDropdown options={q.options} value={answers[q.id] ?? ""} onChange={(val) => handleSelect(q.id, val)} />
+                  <CustomDropdown
+                    options={options}
+                    value={answers[g.kode_gejala] ?? ""}
+                    onChange={(val) => {
+                      const pilihan = g.tb_pilihan.find((p) => p.teks_pilihan === val);
+                      if (pilihan) {
+                        handleSelect(g.kode_gejala, val, pilihan.id_pilihan);
+                      }
+                    }}
+                  />
                 </div>
 
                 {/* Jawaban terpilih */}
@@ -156,10 +246,12 @@ export default function KonsultasiPage() {
         {/* Tombol */}
         <div className="flex justify-center">
           <button
+            onClick={handleDiagnosis}
+            disabled={answered < total || loadingDiagnosis}
             className="bg-[#2F8F8B] hover:bg-[#277C78] text-white font-semibold text-lg px-12 py-4 rounded-xl shadow-md shadow-[#2F8F8B]/25 transition-all duration-300 hover:shadow-lg hover:shadow-[#2F8F8B]/30 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 cursor-pointer"
-            disabled={answered < total}
           >
-            Mulai Diagnosis
+            {/* DIUPDATE: teks tombol berubah saat loading */}
+            {loadingDiagnosis ? "Memproses..." : "Mulai Diagnosis"}
           </button>
         </div>
       </div>

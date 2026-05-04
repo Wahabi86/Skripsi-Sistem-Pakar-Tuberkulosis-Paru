@@ -133,7 +133,7 @@ export default function Home() {
   return (
     <div>
       {/* Hero Section*/}
-      <section className="relative py-10 overflow-hidden">
+      <section id="beranda" className="relative py-10 overflow-hidden scroll-mt-20">
         <div className="relative max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center gap-12">
           {/* Kiri - Teks & Tombol */}
           <div className="flex-1 flex flex-col items-start">
@@ -156,21 +156,13 @@ export default function Home() {
             <p className="text-gray-500 text-xl mb-10 max-w-lg">TBCheck membantu kamu melakukan pemeriksaan awal risiko Tuberkulosis Paru dengan cepat, mudah dan terpercaya.</p>
 
             {/* Tombol */}
-            <div className="flex flex-wrap gap-4">
+            <div>
               <Link
                 href="/konsultasi"
                 className="inline-flex items-center gap-2 bg-[#2F8F8B] hover:bg-[#277C78] text-white font-semibold text-lg px-8 py-4 rounded-xl shadow-md shadow-[#2F8F8B]/25 transition-all duration-300 hover:shadow-lg hover:shadow-[#2F8F8B]/30 hover:-translate-y-0.5"
               >
                 Mulai Skrining
                 <FiArrowRight className="text-lg" />
-              </Link>
-
-              <Link
-                href="/informasi-tbc"
-                className="inline-flex items-center gap-2 border border-gray-300 hover:border-[#2F8F8B] bg-white hover:bg-[#EAF6F6] text-gray-700 hover:text-[#2F8F8B] font-semibold text-lg px-8 py-4 rounded-xl transition-all duration-300 hover:-translate-y-0.5"
-              >
-                Pelajari TBC Paru
-                <LuBookOpen className="text-lg" />
               </Link>
             </div>
           </div>
@@ -206,7 +198,7 @@ export default function Home() {
       </section>
 
       {/* Section Cara Kerja Sistem */}
-      <section className="py-14 bg-white rounded-tl-[5rem] rounded-tr-[5rem]">
+      <section id="tentang" className="py-14 bg-white rounded-tl-[5rem] rounded-tr-[5rem] scroll-mt-20">
         <div className="max-w-6xl mx-auto px-6">
           {/* Judul */}
           <h2 className="text-center text-4xl font-bold text-gray-800 mb-3">Bagaimana TBCheck Bekerja?</h2>
@@ -291,7 +283,7 @@ export default function Home() {
       </section>
 
       {/* Section FAQ */}
-      <section className="py-14 bg-white">
+      <section id="informasi-tbc" className="py-14 bg-white scroll-mt-20">
         <div className="max-w-5xl mx-auto px-6">
           {/* Judul */}
           <div className="flex flex-col items-center mb-12">

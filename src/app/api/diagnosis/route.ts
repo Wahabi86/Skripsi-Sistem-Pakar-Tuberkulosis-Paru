@@ -18,7 +18,7 @@ export async function POST(request: Request) {
       cfUserMap[pilihan.kode_gejala.trim()] = Number(pilihan.nilai_cf_user);
     }
 
-    // 2. Ambil semua aturan dari database
+    // 2. Ambil semua aturan/rule base dari database
     const semuaAturan = await prisma.tb_aturan_basis_pengetahuan.findMany({
       include: {
         gejala: true,
@@ -74,12 +74,14 @@ export async function POST(request: Request) {
       }
 
       // Rumus 2: Combine semua gejala dalam 1 aturan
+      // Selalu dijalankan untuk setiap aturan yang aktif
       let cfAturan = 0;
       for (const cf of cfGejalaList) {
         cfAturan = cfAturan + cf * (1 - cfAturan);
       }
 
       // Rumus 2: Combine CF aturan ini ke hasil penyakit
+      // Hanya berjalan jika ada lebih dari 1 aruran aktif
       if (hasilPerPenyakit[kodePenyakit] === undefined) {
         hasilPerPenyakit[kodePenyakit] = cfAturan;
       } else {
@@ -89,8 +91,6 @@ export async function POST(request: Request) {
     }
 
     // 5. Tentukan hasil diagnosis
-    // Jika CF P1 > 0 → Terindikasi TBC
-    // Jika CF P1 = 0 → Tidak Terindikasi TBC
     let kodePenyakitTerpilih: string;
     let cfTertinggi: number;
 
@@ -116,7 +116,7 @@ export async function POST(request: Request) {
     });
 
     // 8. Filter hanya gejala yang BUKAN jawaban paling sehat (cf_user > 0)
-    //    Jawaban paling sehat = nilai_cf_user = 0 (pilihan terakhir di database)
+    // Jawaban paling sehat = nilai_cf_user = 0 (pilihan terakhir di database)
     const gejalaTerdeteksi = pilihanDenganGejala
       .filter((p) => Number(p.nilai_cf_user) > 0)
       .map((p) => ({

@@ -1,6 +1,5 @@
 "use client";
 
-import { LuBookOpen } from "react-icons/lu";
 import { FiArrowRight } from "react-icons/fi";
 import { FaLongArrowAltRight } from "react-icons/fa";
 import { IoIosArrowDown } from "react-icons/io";
@@ -22,8 +21,8 @@ const features = [
   },
   {
     icon: "/padlock.png",
-    title: "Aman Tanpa Data",
-    desc: "Tidak ada data pribadi yang diminta atau disimpan",
+    title: "Privasi Terjaga",
+    desc: "Data anda hanya digunakan untuk kepentingan penelitian",
   },
 ];
 
@@ -104,7 +103,7 @@ function FAQAccordion() {
         const isOpen = openIndex === index;
         return (
           <div key={index} className={`border rounded-2xl overflow-hidden transition-all duration-300 ${isOpen ? "border-[#2F8F8B]/40 shadow-md shadow-[#2F8F8B]/10" : "border-gray-100 shadow-sm"} bg-white`}>
-            {/* Header */}
+            {/* Pertanyaan */}
             <button onClick={() => toggle(index)} className="w-full flex items-center justify-between px-6 py-5 text-left group cursor-pointer">
               <span className={`font-semibold text-lg transition-colors duration-300 ${isOpen ? "text-[#2F8F8B]" : "text-gray-800"}`}>{faq.question}</span>
               <span
@@ -116,7 +115,7 @@ function FAQAccordion() {
               </span>
             </button>
 
-            {/* Answer - smooth expand */}
+            {/* Jawaban */}
             <div className={`grid transition-all duration-500 ease-in-out ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
               <div className="overflow-hidden">
                 <p className="px-6 pb-5 text-gray-500 text-base leading-relaxed border-t border-gray-100 pt-4">{faq.answer}</p>

@@ -131,7 +131,7 @@ export async function POST(request: Request) {
       data: {
         kode_penyakit: kodePenyakitTerpilih,
         nama_penyakit: penyakit?.nama_penyakit ?? "Tidak diketahui",
-        cf_akhir: kodePenyakitTerpilih === "P2" ? Math.round((1 - cfTertinggi) * 100) : Math.round(cfTertinggi * 100),
+        cf_akhir: Math.round(cfTertinggi * 100),
         cf_detail: hasilPerPenyakit,
         gejala_terdeteksi: gejalaTerdeteksi,
         tanggal: new Date().toLocaleDateString("id-ID"),

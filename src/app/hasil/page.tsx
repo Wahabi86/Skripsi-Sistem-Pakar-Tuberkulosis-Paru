@@ -59,7 +59,11 @@ export default function HasilPage() {
 
   // Kalkulasi tampilan dari data nyata
   const isPositif = hasil.kode_penyakit === "P1";
-  const warna = isPositif ? "#DC2626" : "#2F8F8B";
+  const isPerluPemeriksaan = hasil.kode_penyakit === "P3";
+  const warna = isPositif ? "#DC2626" : isPerluPemeriksaan ? "#FCD34D" : "#2F8F8B";
+
+  // Warna background + border section status diagnosis
+  const bgStatus = isPositif ? "bg-red-50 border-red-200" : isPerluPemeriksaan ? "bg-yellow-50 border-yellow-200" : "bg-green-50 border-green-200";
 
   // Kalkulasi SVG circular progress
   const radius = 58;
@@ -78,34 +82,40 @@ export default function HasilPage() {
         </div>
 
         {/* Section Status Diagnosis */}
-        <div className="flex items-center justify-between gap-6 rounded-2xl border border-gray-100 shadow-sm bg-gray-50 px-8 py-6 mb-6">
+        <div className={`flex items-center justify-between gap-6 rounded-2xl border shadow-sm px-8 py-6 mb-6 ${bgStatus}`}>
           {/* Kiri - Teks */}
           <div className="flex flex-col gap-3">
             <p className="text-gray-500 text-xl font-semibold uppercase tracking-widest">Status Diagnosis</p>
             <p className="text-2xl font-extrabold" style={{ color: warna }}>
               {hasil.nama_penyakit}
             </p>
+            {isPositif && <p className="text-gray-600 text-base leading-relaxed max-w-xl">Disarankan untuk melakukan pemeriksaan lebih lanjut ke fasilitas kesehatan.</p>}
+            {isPerluPemeriksaan && (
+              <p className="text-gray-600 text-base leading-relaxed">Gejala yang Anda alami belum cukup untuk menentukan diagnosis TBC Paru. Disarankan untuk melakukan pemeriksaan lebih lanjut ke fasilitas kesehatan.</p>
+            )}
             <p className="text-gray-500 text-base">
               Diagnosis berdasarkan <span className="font-bold text-gray-700">{hasil.jumlah_gejala} gejala</span> yang Anda rasakan
             </p>
           </div>
 
           {/* Kanan - Circular Progress */}
-          <div className="shrink-0">
-            <svg width="160" height="160" viewBox="0 0 160 160">
-              <circle cx="80" cy="80" r={radius} fill="none" stroke="#E5E7EB" strokeWidth="12" />
-              <circle cx="80" cy="80" r={radius} fill="none" stroke={warna} strokeWidth="12" strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" transform="rotate(-90 80 80)" />
-              <text x="80" y="70" textAnchor="middle" dominantBaseline="middle" fontSize="26" fontWeight="800" fill={warna}>
-                {hasil.cf_akhir}%
-              </text>
-              <text x="80" y="92" textAnchor="middle" dominantBaseline="middle" fontSize="13" fill="#6B7280">
-                Tingkat
-              </text>
-              <text x="80" y="108" textAnchor="middle" dominantBaseline="middle" fontSize="13" fill="#6B7280">
-                Kepastian
-              </text>
-            </svg>
-          </div>
+          {isPositif && (
+            <div className="shrink-0">
+              <svg width="160" height="160" viewBox="0 0 160 160">
+                <circle cx="80" cy="80" r={radius} fill="none" stroke="#E5E7EB" strokeWidth="12" />
+                <circle cx="80" cy="80" r={radius} fill="none" stroke={warna} strokeWidth="12" strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" transform="rotate(-90 80 80)" />
+                <text x="80" y="70" textAnchor="middle" dominantBaseline="middle" fontSize="26" fontWeight="800" fill={warna}>
+                  {hasil.cf_akhir}%
+                </text>
+                <text x="80" y="92" textAnchor="middle" dominantBaseline="middle" fontSize="13" fill="#6B7280">
+                  Tingkat
+                </text>
+                <text x="80" y="108" textAnchor="middle" dominantBaseline="middle" fontSize="13" fill="#6B7280">
+                  Kepastian
+                </text>
+              </svg>
+            </div>
+          )}
         </div>
 
         {/* Section Gejala */}
@@ -128,8 +138,7 @@ export default function HasilPage() {
                     {/* Kiri - nama gejala dari database */}
                     <p className="text-gray-800 text-base font-medium">{g.nama_gejala}</p>
                     {/* Kanan - jawaban user */}
-                    <div className="shrink-0 flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 text-sm font-medium px-4 py-2 rounded-xl">
-                      <span>⚠</span>
+                    <div className="shrink-0 flex items-center bg-red-50 border border-red-200 text-red-600 text-sm font-medium px-4 py-2 rounded-xl">
                       <span>{g.jawaban}</span>
                     </div>
                   </div>
@@ -163,7 +172,8 @@ export default function HasilPage() {
           {/* Section Disclaimer */}
           <div className="rounded-2xl border border-yellow-200 bg-yellow-50 px-6 py-5 ">
             <p className="text-yellow-800 text-base leading-relaxed">
-              <span className="font-bold">Catatan:</span> Hasil ini merupakan penilaian awal berbasis gejala dan bukan pengganti diagnosis medis resmi. Pengguna tetap dianjurkan untuk melakukan pemeriksaan lebih lanjut ke tenaga kesehatan.
+              <span className="font-bold">Catatan:</span> Hasil ini merupakan penilaian awal berbasis gejala dan bukan pengganti diagnosis medis resmi. Pengguna tetap dianjurkan untuk melakukan pemeriksaan lebih lanjut ke fasilitas
+              kesehatan.
             </p>
           </div>
         </div>

@@ -116,14 +116,6 @@ export default function KonsultasiPage() {
     setSelectedIds((prev) => ({ ...prev, [kodeGejala]: idPilihan }));
   };
 
-  // Cek jawaban sehat berdasarkan data dari database
-  const isHealthy = (kodeGejala: string) => {
-    const gejala = gejalaList.find((g) => g.kode_gejala === kodeGejala);
-    if (!gejala) return false;
-    const pilihanTerakhir = gejala.tb_pilihan[gejala.tb_pilihan.length - 1];
-    return answers[kodeGejala] === pilihanTerakhir.teks_pilihan;
-  };
-
   // Kirim jawaban ke API diagnosis lalu redirect ke halaman hasil
   const handleDiagnosis = async () => {
     setLoadingDiagnosis(true);
@@ -189,8 +181,6 @@ export default function KonsultasiPage() {
         <div className="flex flex-col gap-4 mb-8">
           {gejalaList.map((g, index) => {
             const selectedLabel = answers[g.kode_gejala] ?? null;
-            const isAnswered = !!selectedLabel;
-            const healthy = isAnswered && isHealthy(g.kode_gejala);
 
             // format pilihan dari tb_pilihan (database)
             const options = g.tb_pilihan.map((p) => ({ label: p.teks_pilihan }));
@@ -230,11 +220,8 @@ export default function KonsultasiPage() {
 
                 {/* Jawaban terpilih */}
                 {selectedLabel && (
-                  <div
-                    className={`mx-6 mb-4 px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-medium
-                    ${healthy ? "bg-green-50 border border-green-200 text-green-700" : "bg-red-50 border border-red-200 text-red-600"}`}
-                  >
-                    <span>{healthy ? "✓" : "⚠"}</span>
+                  <div className="mx-6 mb-4 px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-medium bg-[#EAF6F6] border border-[#2F8F8B]/20 text-[#2F8F8B]">
+                    <span>✓</span>
                     <span>{selectedLabel}</span>
                   </div>
                 )}

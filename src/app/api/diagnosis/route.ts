@@ -6,117 +6,129 @@ export async function POST(request: Request) {
     const body = await request.json();
     const jawaban: Record<string, number> = body.jawaban;
 
-    // 1. Ambil semua pilihan yang dipilih user beserta nilai CF-nya
+    // LANGKAH 1: Ambil semua pilihan yang dipilih user beserta CF-nya
     const idPilihanList = Object.values(jawaban);
     const pilihanDipilih = await prisma.tb_pilihan_jawaban.findMany({
       where: { id_pilihan: { in: idPilihanList } },
     });
 
-    // Buat map: kode_gejala -> nilai_cf_user
+    // Buat map: kode_gejala -> cf_user
+    // Hanya simpan gejala yang cf_user > 0 (gejala yang benar-benar dialami)
     const cfUserMap: Record<string, number> = {};
     for (const pilihan of pilihanDipilih) {
-      cfUserMap[pilihan.kode_gejala.trim()] = Number(pilihan.nilai_cf_user);
+      const cfUser = Number(pilihan.nilai_cf_user);
+      if (cfUser > 0) {
+        cfUserMap[pilihan.kode_gejala.trim()] = cfUser;
+      }
     }
 
-    // 2. Ambil semua aturan/rule base dari database
+    // Daftar kode gejala yang dialami user (cf_user > 0)
+    const gejalaAktifUser = new Set(Object.keys(cfUserMap));
+
+    // LANGKAH 2: Ambil semua rule dari database beserta data gejala
     const semuaAturan = await prisma.tb_aturan_basis_pengetahuan.findMany({
-      include: {
-        gejala: true,
-      },
+      include: { gejala: true },
     });
 
-    // 3. Kelompokkan aturan per kode_aturan
+    // Kelompokkan aturan per kode_aturan
+    // Hasil: { "R1": [...], "R2": [...], ... }
     const aturanPerKode: Record<string, typeof semuaAturan> = {};
     for (const aturan of semuaAturan) {
-      if (!aturanPerKode[aturan.kode_aturan]) {
-        aturanPerKode[aturan.kode_aturan] = [];
+      const kode = aturan.kode_aturan.trim();
+      if (!aturanPerKode[kode]) {
+        aturanPerKode[kode] = [];
       }
-      aturanPerKode[aturan.kode_aturan].push(aturan);
+      aturanPerKode[kode].push(aturan);
     }
 
-    // 4. Cek aturan yang aktif, lalu hitung CF
-    const hasilPerPenyakit: Record<string, number> = {};
+    // LANGKAH 3: Cari rule yang AKTIF (100% gejalanya terpenuhi penuh)
+    // Rule aktif = semua gejala dalam rule ada di jawaban user (cf_user > 0)
+    const ruleAktif: { kode_aturan: string; kode_penyakit: string; gejalaAktif: string[] }[] = [];
 
-    for (const aturanList of Object.values(aturanPerKode)) {
-      const kodePenyakit = aturanList[0].kode_penyakit;
+    for (const [kodeAturan, aturanList] of Object.entries(aturanPerKode)) {
+      const kodePenyakit = aturanList[0].kode_diagnosis.trim();
 
-      // Cek apakah aturan ini AKTIF
-      // Aturan aktif jika semua kondisi gejala terpenuhi:
-      const aturanAktif = aturanList.every((aturan) => {
-        const cfUser = cfUserMap[aturan.kode_gejala.trim()] ?? 0;
-        if (aturan.is_negasi) {
-          return cfUser === 0; // negasi aktif jika gejala TIDAK ada
-        } else {
-          return cfUser > 0; // normal aktif jika gejala ADA
+      // Cek apakah SEMUA gejala dalam rule ini ada di jawaban user
+      const semuaTerpenuhi = aturanList.every((aturan) => gejalaAktifUser.has(aturan.kode_gejala.trim()));
+
+      // Jika tidak semua terpenuhi, rule ini tidak aktif → skip
+      if (!semuaTerpenuhi) continue;
+
+      // Kumpulkan kode gejala yang ada di rule ini
+      const gejalaAktif = aturanList.map((aturan) => aturan.kode_gejala.trim());
+
+      ruleAktif.push({ kode_aturan: kodeAturan, kode_penyakit: kodePenyakit, gejalaAktif });
+    }
+
+    // LANGKAH 4: Tentukan hasil diagnosis awal
+    // Jika hanya 1 gejala aktif → P3 (perlu pemeriksaan lanjutan)
+    // Jika tidak ada rule aktif → P2 (tidak terindikasi)
+    let cfAkhir = 0;
+    let kodePenyakitTerpilih: string;
+
+    if (gejalaAktifUser.size === 1) {
+      kodePenyakitTerpilih = "P3";
+    } else if (ruleAktif.length === 0) {
+      kodePenyakitTerpilih = "P2";
+    } else {
+      kodePenyakitTerpilih = "P1";
+    }
+
+    if (ruleAktif.length > 0) {
+      // Semua rule aktif pasti P1 (karena hanya P1 yang ada di rule base)
+      kodePenyakitTerpilih = ruleAktif[0].kode_penyakit;
+
+      // LANGKAH 5: Kumpulkan gejala UNIK dari semua rule aktif
+      // Contoh: R1(G1,G2) + R2(G1,G3) + R3(G2,G3) → {G1, G2, G3}
+      const gejalaUnik = new Set<string>();
+      for (const rule of ruleAktif) {
+        for (const kg of rule.gejalaAktif) {
+          gejalaUnik.add(kg);
         }
+      }
+
+      // LANGKAH 6: Ambil cf_pakar dari database untuk gejala unik
+      const dataGejala = await prisma.tb_gejala.findMany({
+        where: { kode_gejala: { in: Array.from(gejalaUnik) } },
       });
 
-      // Skip aturan yang tidak aktif
-      if (!aturanAktif) continue;
-
-      // Rumus 1: Hitung CF tiap gejala dalam aturan
-      const cfGejalaList: number[] = [];
-
-      for (const aturan of aturanList) {
-        const cfPakar = Number(aturan.gejala.cf_pakar);
-        const cfUser = cfUserMap[aturan.kode_gejala.trim()] ?? 0;
-
-        let cfGejala: number;
-        if (aturan.is_negasi) {
-          // Rumus negasi: cf_pakar × (1 - cf_user)
-          cfGejala = cfPakar * (1 - cfUser);
-        } else {
-          // Rumus normal: cf_pakar × cf_user
-          cfGejala = cfPakar * cfUser;
-        }
-
-        cfGejalaList.push(cfGejala);
+      // Buat map: kode_gejala -> cf_pakar
+      const cfPakarMap: Record<string, number> = {};
+      for (const g of dataGejala) {
+        cfPakarMap[g.kode_gejala.trim()] = Number(g.cf_pakar);
       }
 
-      // Rumus 2: Combine semua gejala dalam 1 aturan
-      // Selalu dijalankan untuk setiap aturan yang aktif
-      let cfAturan = 0;
-      for (const cf of cfGejalaList) {
-        cfAturan = cfAturan + cf * (1 - cfAturan);
+      // LANGKAH 7: Hitung CF per gejala unik lalu combine sekaligus
+      // Rumus 1: CF per gejala = CFUser × CFPakar
+      // Rumus 2: CFcombine = CFold + CFnew × (1 - CFold) → iteratif
+      let cfCombine = 0;
+
+      for (const kodeGejala of gejalaUnik) {
+        const cfPakar = cfPakarMap[kodeGejala] ?? 0;
+        const cfUser = cfUserMap[kodeGejala] ?? 0;
+
+        // Rumus 1
+        const cfGejala = cfUser * cfPakar;
+
+        // Rumus 2
+        cfCombine = cfCombine + cfGejala * (1 - cfCombine);
       }
 
-      // Rumus 2: Combine CF aturan ini ke hasil penyakit
-      // Hanya berjalan jika ada lebih dari 1 aruran aktif
-      if (hasilPerPenyakit[kodePenyakit] === undefined) {
-        hasilPerPenyakit[kodePenyakit] = cfAturan;
-      } else {
-        const cfLama = hasilPerPenyakit[kodePenyakit];
-        hasilPerPenyakit[kodePenyakit] = cfLama + cfAturan * (1 - cfLama);
-      }
+      cfAkhir = cfCombine;
     }
 
-    // 5. Tentukan hasil diagnosis
-    let kodePenyakitTerpilih: string;
-    let cfTertinggi: number;
-
-    if (hasilPerPenyakit["P1"] && hasilPerPenyakit["P1"] > 0) {
-      // Ada aturan P1 yang aktif → Terindikasi TBC
-      kodePenyakitTerpilih = "P1";
-      cfTertinggi = hasilPerPenyakit["P1"];
-    } else {
-      // Tidak ada aturan P1 yang aktif → Tidak Terindikasi TBC
-      kodePenyakitTerpilih = "P2";
-      cfTertinggi = hasilPerPenyakit["P2"] ?? 0;
-    }
-
-    // 6. Ambil nama penyakit
-    const penyakit = await prisma.tb_penyakit.findUnique({
-      where: { kode_penyakit: kodePenyakitTerpilih },
+    // LANGKAH 8: Ambil nama penyakit hasil diagnosis
+    const diagnosis = await prisma.tb_diagnosis.findUnique({
+      where: { kode_diagnosis: kodePenyakitTerpilih },
     });
 
-    // 7. Ambil detail gejala yang dijawab user (untuk ditampilkan di halaman hasil)
+    // LANGKAH 9: Ambil detail gejala yang dialami user (untuk ditampilkan)
+    // Hanya gejala dengan cf_user > 0
     const pilihanDenganGejala = await prisma.tb_pilihan_jawaban.findMany({
       where: { id_pilihan: { in: idPilihanList } },
       include: { gejala: true },
     });
 
-    // 8. Filter hanya gejala yang BUKAN jawaban paling sehat (cf_user > 0)
-    // Jawaban paling sehat = nilai_cf_user = 0 (pilihan terakhir di database)
     const gejalaTerdeteksi = pilihanDenganGejala
       .filter((p) => Number(p.nilai_cf_user) > 0)
       .map((p) => ({
@@ -126,13 +138,13 @@ export async function POST(request: Request) {
         nilai_cf_user: Number(p.nilai_cf_user),
       }));
 
+    // LANGKAH 10: Return hasil ke frontend
     return NextResponse.json({
       success: true,
       data: {
         kode_penyakit: kodePenyakitTerpilih,
-        nama_penyakit: penyakit?.nama_penyakit ?? "Tidak diketahui",
-        cf_akhir: Math.round(cfTertinggi * 100),
-        cf_detail: hasilPerPenyakit,
+        nama_penyakit: diagnosis?.nama_diagnosis ?? "Tidak diketahui",
+        cf_akhir: Math.round(cfAkhir * 100),
         gejala_terdeteksi: gejalaTerdeteksi,
         tanggal: new Date().toLocaleDateString("id-ID"),
         jumlah_gejala: gejalaTerdeteksi.length,

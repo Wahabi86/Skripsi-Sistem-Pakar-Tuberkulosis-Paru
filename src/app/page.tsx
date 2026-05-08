@@ -11,7 +11,7 @@ import Footer from "@/components/layouts/Footer";
 const features = [
   {
     icon: "/clock.png",
-    title: "Periksa 3 Menit",
+    title: "Periksa 3 - 5 Menit",
     desc: "Selesai cepat dan praktis",
   },
   {
@@ -160,7 +160,7 @@ export default function Home() {
                 href="/konsultasi"
                 className="inline-flex items-center gap-2 bg-[#2F8F8B] hover:bg-[#277C78] text-white font-semibold text-lg px-8 py-4 rounded-xl shadow-md shadow-[#2F8F8B]/25 transition-all duration-300 hover:shadow-lg hover:shadow-[#2F8F8B]/30 hover:-translate-y-0.5"
               >
-                Mulai Skrining
+                Mulai Prediksi Sekarang
                 <FiArrowRight className="text-lg" />
               </Link>
             </div>

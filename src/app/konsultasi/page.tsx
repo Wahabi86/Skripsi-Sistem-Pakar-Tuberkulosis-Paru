@@ -145,7 +145,7 @@ export default function KonsultasiPage() {
   }
 
   return (
-    <div className="min-h-screen py-10 px-4">
+    <div className="min-h-screen py-10 px-4 pb-20">
       <div className="max-w-6xl mx-auto bg-white rounded-2xl p-8 shadow-xl border border-gray-100">
         {/* Judul */}
         <div className="text-center mb-8">

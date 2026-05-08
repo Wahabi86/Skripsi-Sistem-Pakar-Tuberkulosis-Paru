@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -14,6 +13,7 @@ type GejalaTerdeteksi = {
 };
 
 type HasilDiagnosis = {
+  id_konsultasi: number;
   kode_penyakit: string;
   nama_penyakit: string;
   cf_akhir: number;
@@ -23,15 +23,9 @@ type HasilDiagnosis = {
   jumlah_gejala: number;
 };
 
-// Teks analisis dummy
-const analisisDummy = `Berdasarkan gejala yang Anda laporkan, terdapat kombinasi gejala khas yang sangat erat kaitannya dengan infeksi Tuberkulosis Paru, terutama batuk persisten lebih dari dua minggu disertai dahak dan batuk berdarah.
-
-Gejala sistemik seperti demam ringan yang hilang timbul, keringat malam berlebih, dan penurunan berat badan tanpa sebab jelas merupakan tanda klasik infeksi TBC aktif yang memerlukan perhatian segera dari tenaga kesehatan.
-
-Sangat dianjurkan untuk segera mengunjungi Puskesmas atau rumah sakit terdekat guna menjalani pemeriksaan lanjutan seperti tes dahak (sputum BTA), foto rontgen dada, dan tes TCM (Tes Cepat Molekuler) untuk konfirmasi diagnosis secara resmi.`;
-
 export default function HasilPage() {
-  const router = useRouter();
+  const [narasi, setNarasi] = useState<string>("");
+  const [loadingNarasi, setLoadingNarasi] = useState<boolean>(false);
 
   // State hasil diagnosis
   const [hasil] = useState<HasilDiagnosis | null>(() => {
@@ -41,12 +35,43 @@ export default function HasilPage() {
     return JSON.parse(raw);
   });
 
-  // Redirect ke konsultasi jika tidak ada data
+  // useRef sebagai penjaga agar fetchNarasi hanya dipanggil sekali
+  const hasFetched = useRef(false);
+
+  // Fetch narasi dari RAG-LLM
   useEffect(() => {
-    if (!hasil) {
-      router.push("/konsultasi");
-    }
-  }, [hasil, router]);
+    // Jika sudah pernah fetch atau tidak ada data, hentikan
+    if (!hasil || hasFetched.current) return;
+
+    // Tandai sudah pernah fetch
+    hasFetched.current = true;
+
+    const fetchNarasi = async () => {
+      setLoadingNarasi(true);
+      try {
+        const response = await fetch("/api/narasi", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id_konsultasi: hasil.id_konsultasi,
+            status_diagnosis: hasil.nama_penyakit,
+            cf_akhir: hasil.cf_akhir,
+            gejala_terdeteksi: hasil.gejala_terdeteksi,
+          }),
+        });
+        const data = await response.json();
+        if (data.success) {
+          setNarasi(data.narasi);
+        }
+      } catch (err) {
+        console.error("Gagal mengambil narasi:", err);
+      } finally {
+        setLoadingNarasi(false);
+      }
+    };
+
+    fetchNarasi();
+  }, [hasil]);
 
   // Tampilan loading saat data belum siap
   if (!hasil) {
@@ -147,7 +172,7 @@ export default function HasilPage() {
             </div>
           </div>
 
-          {/* Section Analisis & Rekomendasi */}
+          {/* Section Analisis & Rekomendasi MASIH DUMMY DAN PERLU INTEGRASI DENGAN RAG-LLM NANTI*/}
           <div className="rounded-2xl border border-gray-100 shadow-sm bg-gray-50 px-6 py-5">
             {/* Judul */}
             <div className="flex items-center gap-3 mb-4">
@@ -157,16 +182,25 @@ export default function HasilPage() {
 
             {/* Teks Analisis */}
             <div className="flex flex-col gap-4">
-              {analisisDummy.split("\n\n").map((paragraf, i) => (
-                <p key={i} className="text-gray-600 text-base leading-relaxed">
-                  {paragraf}
-                </p>
-              ))}
+              {loadingNarasi ? (
+                <div className="flex items-center gap-3 py-4">
+                  <div className="w-5 h-5 border-2 border-[#2F8F8B] border-t-transparent rounded-full animate-spin" />
+                  <p className="text-gray-400 text-base">Sedang menganalisis hasil diagnosis...</p>
+                </div>
+              ) : narasi ? (
+                narasi.split("\n\n").map((paragraf, i) => (
+                  <p key={i} className="text-gray-600 text-base leading-relaxed">
+                    {paragraf}
+                  </p>
+                ))
+              ) : (
+                <p className="text-gray-400 text-base">Analisis tidak tersedia, coba beberapa saat lagi...</p>
+              )}
             </div>
 
             {/* Sumber */}
             <div className="mx-8 mt-4 border-t border-gray-200 mb-4" />
-            <p className="text-center text-gray-400 text-sm">Dihasilkan oleh Gemini 2.5 Flash via RAG Alodokter</p>
+            <p className="text-center text-gray-400 text-sm">{loadingNarasi ? "Memproses..." : "Dihasilkan oleh Gemini 2.5 Flash Berdasarkan Referensi RAG Alodokter"}</p>
           </div>
 
           {/* Section Disclaimer */}

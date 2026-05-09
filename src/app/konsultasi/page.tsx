@@ -243,15 +243,7 @@ export default function KonsultasiPage() {
           <button
             onClick={handleDiagnosis}
             disabled={answered < total || loadingDiagnosis}
-            className="bg-[#2F8F8B] hover:bg-[#277C78] text-white font-semibold
-              rounded-xl shadow-md shadow-[#2F8F8B]/25
-              transition-all duration-300
-              hover:shadow-lg hover:shadow-[#2F8F8B]/30 hover:-translate-y-0.5
-              disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0
-              cursor-pointer
-              text-base md:text-lg
-              px-8 py-3 md:px-12 md:py-4
-              w-full md:w-auto"
+            className="bg-[#2F8F8B] hover:bg-[#277C78] text-white font-semibold rounded-xl shadow-md shadow-[#2F8F8B]/25 transition-all duration-300 hover:shadow-lg hover:shadow-[#2F8F8B]/30 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 cursor-pointer text-base md:text-lg px-8 py-3 md:px-12 md:py-4 w-full md:w-auto"
           >
             {loadingDiagnosis ? "Memproses..." : "Mulai Diagnosis"}
           </button>

@@ -167,7 +167,7 @@ export default function Home() {
           {/* Kanan - Gambar Paru */}
           <div className="hidden md:flex flex-1 justify-center items-center relative">
             <div className="absolute w-64 h-64 lg:w-80 lg:h-80 bg-[#2F8F8B]/12 rounded-full blur-2xl pointer-events-none" />
-            <Image src="/icon-paru.png" alt="Ilustrasi Paru-paru" width={0} height={0} sizes="100vw" className="relative w-full max-w-xs md:max-w-sm lg:max-w-xl object-contain drop-shadow-xl md:scale-190 lg:scale-200" />
+            <Image src="/icon-paru.png" alt="Ilustrasi Paru-paru" width={0} height={0} sizes="100vw" className="relative w-full max-w-xs md:max-w-sm lg:max-w-xl object-contain drop-shadow-xl md:scale-190 lg:scale-200 mt-20" />
           </div>
         </div>
       </section>

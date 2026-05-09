@@ -106,12 +106,12 @@ export async function POST(request: Request) {
         id_pilihan: p.id_pilihan,
       }));
 
-    // LANGKAH 7 (BARU): Simpan ke database tb_konsultasi
+    // LANGKAH 7: Simpan ke database tb_konsultasi
     const konsultasiBaru = await prisma.tb_konsultasi.create({
       data: {
         kode_diagnosis: kodePenyakitTerpilih,
         cf_akhir: cfAkhir,
-        // penjelasan_llm dikosongkan dulu, akan diisi oleh /api/narasi nanti
+        // penjelasan_llm akan diisi oleh /api/narasi nanti
       },
     });
 
@@ -127,12 +127,10 @@ export async function POST(request: Request) {
         })),
       });
     }
-    // =====================================================
 
     return NextResponse.json({
       success: true,
       data: {
-        // Tambahkan id_konsultasi agar /api/narasi bisa update baris yang sama
         id_konsultasi: konsultasiBaru.id_konsultasi,
         kode_penyakit: kodePenyakitTerpilih,
         nama_penyakit: diagnosis?.nama_diagnosis ?? "Tidak diketahui",

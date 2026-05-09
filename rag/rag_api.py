@@ -137,7 +137,7 @@ def generate_narasi():
                 "jawaban": jawaban,
             })
 
-        # LANGKAH 2: Bangun query retrieval
+                # LANGKAH 2: Bangun query retrieval
         deskripsi_gejala = "; ".join([
             f"{g['nama']}: {g['jawaban']}" for g in rincian_gejala
         ])
@@ -145,6 +145,11 @@ def generate_narasi():
         if "Tidak Terindikasi" in status_diagnosis:
             query_retrieval = (
                 f"pasien tidak terindikasi tuberkulosis paru. "
+                f"keluhan yang dilaporkan: {deskripsi_gejala}"
+            )
+        elif "Perlu Pemeriksaan Lanjut" in status_diagnosis:
+            query_retrieval = (
+                f"pasien belum dapat dipastikan tuberkulosis paru, perlu pemeriksaan lanjut. "
                 f"keluhan yang dilaporkan: {deskripsi_gejala}"
             )
         else:

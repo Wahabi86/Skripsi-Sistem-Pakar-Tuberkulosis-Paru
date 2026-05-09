@@ -134,7 +134,7 @@ export async function POST(request: Request) {
         id_konsultasi: konsultasiBaru.id_konsultasi,
         kode_penyakit: kodePenyakitTerpilih,
         nama_penyakit: diagnosis?.nama_diagnosis ?? "Tidak diketahui",
-        cf_akhir: Math.round(cfAkhir * 100),
+        cf_akhir: Math.round(parseFloat((cfAkhir * 100).toFixed(2))),
         gejala_terdeteksi: gejalaTerdeteksi,
         tanggal: new Date().toLocaleDateString("id-ID"),
         jumlah_gejala: gejalaTerdeteksi.length,

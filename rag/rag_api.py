@@ -7,7 +7,7 @@ import faiss
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from sentence_transformers import SentenceTransformer
-from google import genai
+import requests
 
 # Load .env dari folder root proyek (satu level di atas folder rag/)
 load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".env"))
@@ -33,8 +33,7 @@ faiss.normalize_L2(embeddings_normalized)
 index = faiss.IndexFlatIP(embeddings.shape[1])
 index.add(embeddings_normalized)
 
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
-gemini_client = genai.Client(api_key=GEMINI_API_KEY)
+OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
 
 print(f"✓ Selesai! Total chunks: {len(all_chunks)}, Vectors: {index.ntotal}")
 
@@ -273,14 +272,25 @@ PANTANGAN — WAJIB DIPATUHI:
 - Setiap paragraf maksimal 5 kalimat, padat dan to the point
 """
 
-        # LANGKAH 6: Panggil Gemini
-        response = gemini_client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=final_prompt,
-            config={"temperature": 0.2, "top_p": 0.8},
+        # LANGKAH 6: Panggil OpenRouter (Gemini 2.5 Flash)
+        response = requests.post(
+            url="https://openrouter.ai/api/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": "google/gemini-2.5-flash",
+                "messages": [
+                    {"role": "user", "content": final_prompt}
+                ],
+                "temperature": 0.2,
+                "top_p": 0.8,
+            }
         )
 
-        narasi = response.text
+        response_json = response.json()
+        narasi = response_json["choices"][0]["message"]["content"]
 
         # Bersihkan formatting Markdown dari output Gemini
         narasi = re.sub(r'\*\*(.+?)\*\*', r'\1', narasi)

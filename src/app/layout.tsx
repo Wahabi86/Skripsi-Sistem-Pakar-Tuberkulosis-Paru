@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Sistem Pakar dan RAG-LLM Diagnosis TBC Paru",
   description: "Aplikasi diagnosis dini penyakit tuberkulosis paru",
+  icons: {
+    icon: "/logo-paru.png",
+  },
 };
 
 export default function RootLayout({

@@ -28,7 +28,8 @@ export async function POST(request: Request) {
       include: { gejala: true },
     });
 
-    const aturanPerKode: Record<string, typeof semuaAturan> = {};
+    type AturanItem = (typeof semuaAturan)[number];
+    const aturanPerKode: Record<string, AturanItem[]> = {};
     for (const aturan of semuaAturan) {
       const kode = aturan.kode_aturan.trim();
       if (!aturanPerKode[kode]) aturanPerKode[kode] = [];
@@ -40,9 +41,9 @@ export async function POST(request: Request) {
 
     for (const [kodeAturan, aturanList] of Object.entries(aturanPerKode)) {
       const kodePenyakit = aturanList[0].kode_diagnosis.trim();
-      const semuaTerpenuhi = aturanList.every((a) => gejalaAktifUser.has(a.kode_gejala.trim()));
+      const semuaTerpenuhi = aturanList.every((a: AturanItem) => gejalaAktifUser.has(a.kode_gejala.trim()));
       if (!semuaTerpenuhi) continue;
-      const gejalaAktif = aturanList.map((a) => a.kode_gejala.trim());
+      const gejalaAktif = aturanList.map((a: AturanItem) => a.kode_gejala.trim());
       ruleAktif.push({ kode_aturan: kodeAturan, kode_penyakit: kodePenyakit, gejalaAktif });
     }
 
@@ -96,9 +97,17 @@ export async function POST(request: Request) {
       include: { gejala: true },
     });
 
-    const gejalaTerdeteksi = pilihanDenganGejala
-      .filter((p) => Number(p.nilai_cf_user) > 0)
-      .map((p) => ({
+    type PilihanItem = (typeof pilihanDenganGejala)[number];
+    type GejalaTerdeteksiItem = {
+      kode_gejala: string;
+      nama_gejala: string;
+      jawaban: string;
+      nilai_cf_user: number;
+      id_pilihan: number;
+    };
+    const gejalaTerdeteksi: GejalaTerdeteksiItem[] = pilihanDenganGejala
+      .filter((p: PilihanItem) => Number(p.nilai_cf_user) > 0)
+      .map((p: PilihanItem) => ({
         kode_gejala: p.kode_gejala.trim(),
         nama_gejala: p.gejala.nama_gejala,
         jawaban: p.teks_pilihan,

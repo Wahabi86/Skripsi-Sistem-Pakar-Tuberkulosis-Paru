@@ -12,7 +12,8 @@ export async function GET() {
     });
 
     // Sort berdasarkan angka di belakang kode gejala
-    gejala.sort((a, b) => {
+    type GejalaItem = (typeof gejala)[number];
+    gejala.sort((a: GejalaItem, b: GejalaItem) => {
       const angkaA = parseInt(a.kode_gejala.replace(/\D/g, ""));
       const angkaB = parseInt(b.kode_gejala.replace(/\D/g, ""));
       return angkaA - angkaB;

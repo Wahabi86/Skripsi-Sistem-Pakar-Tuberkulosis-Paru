@@ -24,28 +24,31 @@ export async function GET() {
     });
 
     // Kelompokkan rule per kode_aturan
-    const aturanPerKode: Record<string, typeof semuaAturan> = {};
+    type AturanItem = (typeof semuaAturan)[number];
+    const aturanPerKode: Record<string, AturanItem[]> = {};
     for (const aturan of semuaAturan) {
       const kode = aturan.kode_aturan.trim();
       if (!aturanPerKode[kode]) aturanPerKode[kode] = [];
       aturanPerKode[kode].push(aturan);
     }
 
+    type KonsultasiItem = (typeof semuaKonsultasi)[number];
+    type DetailItem = KonsultasiItem["tb_detail"][number];
     // Susun data menjadi baris-baris untuk Excel
-    const baris = semuaKonsultasi.map((k, index) => {
+    const baris = semuaKonsultasi.map((k: KonsultasiItem, index: number) => {
       // Gabungkan semua gejala terdeteksi menjadi 1 teks
-      const daftarGejala = k.tb_detail.map((d) => `[${d.gejala.kode_gejala.trim()}] ${d.gejala.nama_gejala}: ${d.pilihan.teks_pilihan}`).join(" | ");
+      const daftarGejala = k.tb_detail.map((d: DetailItem) => `[${d.gejala.kode_gejala.trim()}] ${d.gejala.nama_gejala}: ${d.pilihan.teks_pilihan}`).join(" | ");
 
       // Kumpulkan kode gejala yang aktif pada konsultasi ini
-      const gejalaAktif = new Set(k.tb_detail.map((d) => d.kode_gejala.trim()));
+      const gejalaAktif = new Set(k.tb_detail.map((d: DetailItem) => d.kode_gejala.trim()));
 
       // Cari rule yang aktif: semua gejala dalam rule harus ada di gejalaAktif
       const ruleAktif: string[] = [];
       for (const [kodeAturan, aturanList] of Object.entries(aturanPerKode)) {
-        const semuaTerpenuhi = aturanList.every((a) => gejalaAktif.has(a.kode_gejala.trim()));
+        const semuaTerpenuhi = aturanList.every((a: AturanItem) => gejalaAktif.has(a.kode_gejala.trim()));
         if (semuaTerpenuhi) {
           // Kumpulkan gejala dalam rule ini untuk ditampilkan
-          const gejalaRule = aturanList.map((a) => a.kode_gejala.trim()).join(", ");
+          const gejalaRule = aturanList.map((a: AturanItem) => a.kode_gejala.trim()).join(", ");
           ruleAktif.push(`${kodeAturan} (${gejalaRule})`);
         }
       }

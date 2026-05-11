@@ -255,6 +255,12 @@ Jangan sebut nilai persentase apapun. Tulis dalam 1 paragraf mengalir."""
 Sarankan memeriksakan diri ke dokter sebagai langkah waspada.
 Sebutkan dalam kalimat mengalir gejala TBC lain yang perlu diperhatikan ke depannya agar pasien tetap waspada."""
 
+        # Tentukan teks gejala untuk prompt
+        if rincian_gejala:
+            bagian_gejala = f"- DAFTAR GEJALA & JAWABAN PASIEN:\n{daftar_gejala_teks}"
+        else:
+            bagian_gejala = "- DAFTAR GEJALA & JAWABAN PASIEN: TIDAK ADA. Pasien tidak melaporkan gejala apapun. JANGAN menyebut atau mengarang gejala apapun dalam narasi."
+
         final_prompt = f"""
 Anda adalah sistem pendukung diagnosis TBC (Tuberkulosis Paru) yang bertugas menjelaskan hasil diagnosis kepada pasien awam.
 Tugas Anda: Menjelaskan MENGAPA gejala-gejala yang dialami pasien bisa mengarah ke TBC berdasarkan kondisi spesifik yang dilaporkan pasien, apa artinya secara medis, dan apa yang harus dilakukan — dengan bahasa hangat, mudah dipahami, dan tidak menakut-nakuti.
@@ -262,8 +268,7 @@ Tugas Anda: Menjelaskan MENGAPA gejala-gejala yang dialami pasien bisa mengarah 
 DATA DIAGNOSIS:
 - STATUS AKHIR: {status_diagnosis}
 {data_cf_teks}
-- DAFTAR GEJALA & JAWABAN PASIEN:
-{daftar_gejala_teks}
+{bagian_gejala}
 
 REFERENSI MEDIS (DARI ALODOKTER):
 {retrieved_text}
@@ -287,6 +292,7 @@ PANTANGAN — WAJIB DIPATUHI:
 - JANGAN berhalusinasi atau menambahkan informasi medis yang tidak berdasar
 - TULIS dalam bentuk paragraf biasa yang mengalir, bukan poin-poin atau daftar
 - Setiap paragraf maksimal 5 kalimat, padat dan to the point
+- JIKA tidak ada gejala yang dilaporkan, JANGAN SEKALI-KALI menyebut atau mengarang gejala apapun
 """
 
         # LANGKAH 6: Panggil OpenRouter (Gemini 2.5 Flash)

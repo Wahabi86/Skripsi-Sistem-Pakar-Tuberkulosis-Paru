@@ -217,7 +217,7 @@ export default function Home() {
           {/* Tiga Kartu */}
           <div className="grid grid-cols-1 grid-rows-[auto_auto] md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {/* Kartu 1 */}
-            <div className="flex flex-col items-center text-center bg-white border border-gray-100 rounded-2xl px-10 py-10 shadow-sm hover:shadow-md hover:border-[#2F8F8B]/30 transition-all duration-300">
+            <div className="flex flex-col items-center text-center bg-white border border-gray-100 rounded-2xl px-10 py-10 shadow-sm hover:shadow-md hover:border-[#2F8F8B]/30 transition-all duration-300 cursor-pointer">
               <div className="w-20 h-20 rounded-full bg-[#EAF6F6] flex items-center justify-center mb-5 shrink-0">
                 <Image src="/stethoscope.png" alt="Sistem Pakar" width={56} height={56} className="object-contain" />
               </div>
@@ -228,7 +228,7 @@ export default function Home() {
             </div>
 
             {/* Kartu 2 */}
-            <div className="flex flex-col items-center text-center bg-white border border-gray-100 rounded-2xl px-10 py-10 shadow-sm hover:shadow-md hover:border-[#2F8F8B]/30 transition-all duration-300">
+            <div className="flex flex-col items-center text-center bg-white border border-gray-100 rounded-2xl px-10 py-10 shadow-sm hover:shadow-md hover:border-[#2F8F8B]/30 transition-all duration-300 cursor-pointer">
               <div className="w-20 h-20 rounded-full bg-[#EAF6F6] flex items-center justify-center mb-5 shrink-0">
                 <Image src="/gear.png" alt="Metode Ilmiah" width={56} height={56} className="object-contain" />
               </div>
@@ -240,7 +240,7 @@ export default function Home() {
             </div>
 
             {/* Kartu 3 */}
-            <div className="flex flex-col items-center text-center bg-white border border-gray-100 rounded-2xl px-10 py-10 shadow-sm hover:shadow-md hover:border-[#2F8F8B]/30 transition-all duration-300 md:col-span-2 md:w-1/2 md:mx-auto lg:col-span-1 lg:w-auto lg:mx-0">
+            <div className="flex flex-col items-center text-center bg-white border border-gray-100 rounded-2xl px-10 py-10 shadow-sm hover:shadow-md hover:border-[#2F8F8B]/30 transition-all duration-300 md:col-span-2 md:w-1/2 md:mx-auto lg:col-span-1 lg:w-auto lg:mx-0 cursor-pointer">
               <div className="w-20 h-20 rounded-full bg-[#EAF6F6] flex items-center justify-center mb-5 shrink-0">
                 <Image src="/book.png" alt="Referensi Medis" width={56} height={56} className="object-contain" />
               </div>

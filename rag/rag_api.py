@@ -137,7 +137,7 @@ def generate_narasi():
                 "jawaban": jawaban,
             })
 
-                # LANGKAH 2: Bangun query retrieval
+        # LANGKAH 2: Bangun query retrieval
         deskripsi_gejala = "; ".join([
             f"{g['nama']}: {g['jawaban']}" for g in rincian_gejala
         ])
@@ -219,13 +219,25 @@ Tulis semua dalam 1 paragraf mengalir."""
         elif "Tidak Terindikasi" in status_diagnosis:
             data_cf_teks = ""
 
-            paragraf1_instruksi = f"""PARAGRAF 1 — ISI (maksimal 4 kalimat, JANGAN gunakan bullet/daftar):
+            # Jika tidak ada gejala sama sekali, beri instruksi khusus
+            if not rincian_gejala:
+                paragraf1_instruksi = """PARAGRAF 1 — ISI (maksimal 4 kalimat, JANGAN gunakan bullet/daftar):
+Sampaikan bahwa pasien tidak melaporkan gejala apapun yang mengarah ke TBC berdasarkan hasil konsultasi.
+Jelaskan bahwa ini adalah hasil yang baik, namun tetap penting untuk menjaga kesehatan paru-paru.
+Tulis dalam 1 paragraf mengalir. JANGAN menyebutkan atau mengarang gejala yang tidak ada."""
+
+                paragraf2_instruksi = """PARAGRAF 2 — ISI (maksimal 4 kalimat, JANGAN gunakan bullet/daftar):
+Sebutkan dalam kalimat mengalir gejala khas TBC yang perlu diwaspadai ke depan (batuk lebih dari 2 minggu, batuk darah, keringat malam, demam hilang timbul, berat badan turun).
+Tutup dengan saran menjaga daya tahan tubuh dan anjuran periksa dokter jika gejala tersebut muncul di kemudian hari."""
+
+            else:
+                paragraf1_instruksi = f"""PARAGRAF 1 — ISI (maksimal 4 kalimat, JANGAN gunakan bullet/daftar):
 Sampaikan bahwa pola gejala yang dilaporkan belum cukup mengarah ke TBC.
 Untuk setiap gejala berikut, jelaskan dalam kalimat mengalir MENGAPA gejala tersebut dengan kondisi yang dilaporkan pasien belum cukup kuat menunjukkan TBC — bisa disebabkan kondisi lain yang lebih ringan:
 {detail_gejala_instruksi}
 Jangan sebut nilai persentase apapun. Tulis dalam 1 paragraf mengalir."""
 
-            paragraf2_instruksi = """PARAGRAF 2 — ISI (maksimal 4 kalimat, JANGAN gunakan bullet/daftar):
+                paragraf2_instruksi = """PARAGRAF 2 — ISI (maksimal 4 kalimat, JANGAN gunakan bullet/daftar):
 Sebutkan dalam kalimat mengalir gejala khas TBC yang perlu diwaspadai ke depan (batuk lebih dari 2 minggu, batuk darah, keringat malam, demam hilang timbul, berat badan turun).
 Tutup dengan saran menjaga daya tahan tubuh dan anjuran periksa dokter jika gejala bertambah atau memburuk."""
 

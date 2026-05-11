@@ -210,7 +210,7 @@ export default function Home() {
             </h2>
             <div className="w-12 h-1 bg-[#2F8F8B] rounded mb-3 md:mb-4" />
             <p className="text-gray-500 text-sm md:text-lg text-center max-w-2xl">
-              TBCheck adalah sistem pakar berbasis website untuk deteksi dini Tuberkulosis Paru. Sistem ini bukan sekadar AI biasa — dibangun di atas pengetahuan medis nyata dari dokter dan metode ilmiah yang terstruktur.
+              TBCheck adalah sistem pakar berbasis website untuk deteksi dini Tuberkulosis Paru. Sistem ini bukan sekadar AI biasa - dibangun di atas pengetahuan medis nyata dari dokter dan metode ilmiah yang terstruktur.
             </p>
           </div>
 

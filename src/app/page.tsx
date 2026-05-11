@@ -200,8 +200,64 @@ export default function Home() {
         </div>
       </section>
 
-      {/* SECTION CARA KERJA */}
+      {/* SECTION TENTANG APLIKASI TBCHECK */}
       <section id="tentang" className="py-10 md:py-14 bg-white rounded-tl-[3rem] md:rounded-tl-[5rem] rounded-tr-[3rem] md:rounded-tr-[5rem] scroll-mt-80 md:scroll-mt-20">
+        <div className="max-w-6xl mx-auto px-5 md:px-8 lg:px-6">
+          {/* Judul */}
+          <div className="flex flex-col items-center mb-8 md:mb-12">
+            <h2 className="text-2xl md:text-4xl font-bold text-gray-800 text-center mb-3">
+              Apa itu <span className="text-[#2F8F8B]">TBCheck?</span>
+            </h2>
+            <div className="w-12 h-1 bg-[#2F8F8B] rounded mb-3 md:mb-4" />
+            <p className="text-gray-500 text-sm md:text-lg text-center max-w-2xl">
+              TBCheck adalah sistem pakar berbasis website untuk deteksi dini Tuberkulosis Paru. Sistem ini bukan sekadar AI biasa — dibangun di atas pengetahuan medis nyata dari dokter dan metode ilmiah yang terstruktur.
+            </p>
+          </div>
+
+          {/* Tiga Kartu */}
+          <div className="grid grid-cols-1 grid-rows-[auto_auto] md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            {/* Kartu 1 */}
+            <div className="flex flex-col items-center text-center bg-white border border-gray-100 rounded-2xl px-10 py-10 shadow-sm hover:shadow-md hover:border-[#2F8F8B]/30 transition-all duration-300">
+              <div className="w-20 h-20 rounded-full bg-[#EAF6F6] flex items-center justify-center mb-5 shrink-0">
+                <Image src="/stethoscope.png" alt="Sistem Pakar" width={56} height={56} className="object-contain" />
+              </div>
+              <p className="font-bold text-gray-800 text-base md:text-base lg:text-xl mb-3">Sistem Pakar dari Dokter Asli</p>
+              <p className="text-gray-500 text-sm md:text-xs lg:text-base leading-relaxed text-justify">
+                Basis pengetahuan disusun bersama dokter umum. 10 gejala klinis dan 12 aturan diagnosis telah divalidasi langsung oleh tenaga medis, bukan dibuat otomatis oleh AI.
+              </p>
+            </div>
+
+            {/* Kartu 2 */}
+            <div className="flex flex-col items-center text-center bg-white border border-gray-100 rounded-2xl px-10 py-10 shadow-sm hover:shadow-md hover:border-[#2F8F8B]/30 transition-all duration-300">
+              <div className="w-20 h-20 rounded-full bg-[#EAF6F6] flex items-center justify-center mb-5 shrink-0">
+                <Image src="/gear.png" alt="Metode Ilmiah" width={56} height={56} className="object-contain" />
+              </div>
+              <p className="font-bold text-gray-800 text-base md:text-base lg:text-xl mb-3">Metode Ilmiah yang Terstruktur</p>
+              <p className="text-gray-500 text-sm md:text-xs lg:text-base leading-relaxed text-justify">
+                Diagnosis diproses melalui <span className="font-semibold text-gray-700">Forward Chaining</span> untuk menelusuri gejala secara logis dan <span className="font-semibold text-gray-700">Certainty Factor</span> untuk mengukur
+                tingkat keyakinan diagnosis secara kuantitatif.
+              </p>
+            </div>
+
+            {/* Kartu 3 */}
+            <div className="flex flex-col items-center text-center bg-white border border-gray-100 rounded-2xl px-10 py-10 shadow-sm hover:shadow-md hover:border-[#2F8F8B]/30 transition-all duration-300 md:col-span-2 md:w-1/2 md:mx-auto lg:col-span-1 lg:w-auto lg:mx-0">
+              <div className="w-20 h-20 rounded-full bg-[#EAF6F6] flex items-center justify-center mb-5 shrink-0">
+                <Image src="/book.png" alt="Referensi Medis" width={56} height={56} className="object-contain" />
+              </div>
+              <p className="font-bold text-gray-800 text-base md:text-base lg:text-xl mb-3">Penjelasan Berbasis Referensi Medis</p>
+              <p className="text-gray-500 text-sm md:text-xs lg:text-base leading-relaxed text-justify">
+                Narasi hasil diagnosis bersumber dari dataset medis Alodokter yang terverifikasi melalui teknik <span className="font-semibold text-gray-700">Retrieval Augmented Generation (RAG)</span>, bukan hasil imajinasi AI semata.
+              </p>
+            </div>
+          </div>
+
+          {/* Catatan bawah */}
+          <p className="text-center text-sm md:text-base text-gray-400 mt-3 md:mt-2">Sistem ini berfungsi sebagai alat bantu penilaian awal, bukan pengganti diagnosis medis resmi dari tenaga kesehatan.</p>
+        </div>
+      </section>
+
+      {/* SECTION CARA KERJA */}
+      <section className="py-10 md:py-14 bg-white  ">
         <div className="max-w-6xl mx-auto px-5 md:px-6">
           {/* Judul */}
           <h2 className="text-center text-2xl md:text-4xl font-bold text-gray-800 mb-3">Bagaimana TBCheck Bekerja?</h2>
